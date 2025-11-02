@@ -40,6 +40,11 @@ bloat search --semantic "generate URL slugs"
 # Hybrid search
 bloat search --hybrid "API rate limiting"
 
+# Filter search to a specific repository
+bloat search -r my-repo-name "query string"
+bloat search --semantic -r my-repo-name "semantic query"
+bloat search --hybrid -r my-repo-name --limit 10 "hybrid query"
+
 # List indexed repositories
 bloat list
 ```
