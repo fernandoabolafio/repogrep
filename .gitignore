@@ -11,3 +11,5 @@ yarn-error.log*
 .repogrep/
 .rsearch/
 repos/
+
+.cursor/
