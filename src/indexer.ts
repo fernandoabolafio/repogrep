@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+import cliProgress from 'cli-progress';
 import fg from 'fast-glob';
 import { simpleGit } from 'simple-git';
 
@@ -115,12 +116,42 @@ export async function indexRepository(repoPath: string, options: IndexOptions = 
   let binarySkipped = 0;
   let unchangedSkipped = 0;
 
+  // Initialize progress bar
+  let progressBar: cliProgress.SingleBar | null = null;
+  if (entries.length > 0) {
+    progressBar = new cliProgress.SingleBar({
+      format: '[{bar}] {percentage}% | {value}/{total} files | Current: {filename} | Indexed: {indexed} Skipped: {skipped} Binary: {binary}',
+      barCompleteChar: '\u2588',
+      barIncompleteChar: '\u2591',
+      hideCursor: true,
+      clearOnComplete: false
+    }, cliProgress.Presets.shades_classic);
+    progressBar.start(entries.length, 0, {
+      filename: 'Starting...',
+      indexed: 0,
+      skipped: 0,
+      binary: 0
+    });
+  }
+
+  let processedCount = 0;
+  let indexedCount = 0;
+
   for (const relativePath of entries) {
     const absolutePath = path.join(repoPath, relativePath);
     const buffer = await fs.readFile(absolutePath);
 
     if (isBinaryBuffer(buffer)) {
       binarySkipped += 1;
+      processedCount += 1;
+      if (progressBar) {
+        progressBar.update(processedCount, {
+          filename: relativePath.length > 40 ? '...' + relativePath.slice(-37) : relativePath,
+          indexed: indexedCount,
+          skipped: unchangedSkipped,
+          binary: binarySkipped
+        });
+      }
       continue;
     }
 
@@ -134,6 +165,15 @@ export async function indexRepository(repoPath: string, options: IndexOptions = 
     const existing = existingByPath.get(relativePath);
     if (existing && existing.hash === hash && !force) {
       unchangedSkipped += 1;
+      processedCount += 1;
+      if (progressBar) {
+        progressBar.update(processedCount, {
+          filename: relativePath.length > 40 ? '...' + relativePath.slice(-37) : relativePath,
+          indexed: indexedCount,
+          skipped: unchangedSkipped,
+          binary: binarySkipped
+        });
+      }
       continue;
     }
 
@@ -153,6 +193,22 @@ export async function indexRepository(repoPath: string, options: IndexOptions = 
       contents,
       embedding
     });
+
+    indexedCount += 1;
+    processedCount += 1;
+    if (progressBar) {
+      progressBar.update(processedCount, {
+        filename: relativePath.length > 40 ? '...' + relativePath.slice(-37) : relativePath,
+        indexed: indexedCount,
+        skipped: unchangedSkipped,
+        binary: binarySkipped
+      });
+    }
+  }
+
+  if (progressBar) {
+    progressBar.stop();
+    progressBar = null;
   }
 
   for (const record of existingRecords) {
