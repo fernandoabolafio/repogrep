@@ -45,7 +45,7 @@ function wrapAction(fn: (...args: any[]) => Promise<void>) {
 }
 
 program
-  .name('bloat')
+  .name('repogrep')
   .description('Local code search combining SQLite FTS and LanceDB semantic search')
   .version('0.1.0');
 

@@ -1,6 +1,6 @@
-# Bloat
+# RepoGrep
 
-Bloat is a fully local CLI for indexing source repositories and searching them with both full-text (BM25 via SQLite FTS5) and semantic (vector similarity via LanceDB) ranking. Everything runs on your machine—no cloud services required.
+RepoGrep is a fully local CLI for indexing source repositories and searching them with both full-text (BM25 via SQLite FTS5) and semantic (vector similarity via LanceDB) ranking. Everything runs on your machine—no cloud services required.
 
 ## Features
 
@@ -12,41 +12,49 @@ Bloat is a fully local CLI for indexing source repositories and searching them w
 
 ## Installation
 
+Install globally via npm:
+
 ```bash
-git clone https://github.com/your-org/bloat.git
-cd bloat
+npm install -g repogrep
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/fernandoabolafio/repogrep.git
+cd repogrep
 npm install
 npm run build
 npm i -g .
 ```
 
-The global install exposes the `bloat` command, which points to the compiled `dist/cli.js` entry.
+The global install exposes the `repogrep` command.
 
 ## Usage
 
 ```bash
 # Add and index a repository in one go
-bloat add https://github.com/sindresorhus/slugify
+repogrep add https://github.com/sindresorhus/slugify
 
 # Re-index an existing local clone
-bloat index ~/.bloat/repos/slugify -r slugify
+repogrep index ~/.bloat/repos/slugify -r slugify
 
 # Keyword search (default)
-bloat search "auth token rotation"
+repogrep search "auth token rotation"
 
 # Semantic search
-bloat search --semantic "generate URL slugs"
+repogrep search --semantic "generate URL slugs"
 
 # Hybrid search
-bloat search --hybrid "API rate limiting"
+repogrep search --hybrid "API rate limiting"
 
 # Filter search to a specific repository
-bloat search -r my-repo-name "query string"
-bloat search --semantic -r my-repo-name "semantic query"
-bloat search --hybrid -r my-repo-name --limit 10 "hybrid query"
+repogrep search -r my-repo-name "query string"
+repogrep search --semantic -r my-repo-name "semantic query"
+repogrep search --hybrid -r my-repo-name --limit 10 "hybrid query"
 
 # List indexed repositories
-bloat list
+repogrep list
 ```
 
 Index data is stored under `~/.bloat/.rsearch` and can be safely removed if you want to rebuild from scratch.

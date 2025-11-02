@@ -1,11 +1,11 @@
 {
-  "name": "bloat",
+  "name": "repogrep",
   "version": "0.1.0",
   "description": "Local CLI tool for indexing and searching code repositories with full-text and semantic search.",
   "type": "module",
   "main": "dist/cli.js",
   "bin": {
-    "bloat": "dist/cli.js"
+    "repogrep": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc --project tsconfig.json",
@@ -16,14 +16,30 @@
   "keywords": [
     "search",
     "cli",
+    "code-search",
+    "semantic-search",
     "fts",
+    "full-text-search",
     "lancedb",
-    "embeddings"
+    "embeddings",
+    "vector-search",
+    "sqlite",
+    "local",
+    "offline"
   ],
-  "author": "",
+  "author": "Fernando Abolafio",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fernandoabolafio/repogrep.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fernandoabolafio/repogrep/issues"
+  },
+  "homepage": "https://github.com/fernandoabolafio/repogrep#readme",
   "files": [
-    "dist"
+    "dist",
+    "readme.md"
   ],
   "engines": {
     "node": ">=18.0.0"
