@@ -1,0 +1,45 @@
+{
+  "name": "bloat",
+  "version": "0.1.0",
+  "description": "Local CLI tool for indexing and searching code repositories with full-text and semantic search.",
+  "type": "module",
+  "main": "dist/cli.js",
+  "bin": {
+    "bloat": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "clean": "rm -rf dist",
+    "dev": "tsx src/cli.ts",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "search",
+    "cli",
+    "fts",
+    "lancedb",
+    "embeddings"
+  ],
+  "author": "",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@lancedb/lancedb": "^0.4.0",
+    "@xenova/transformers": "^2.10.0",
+    "better-sqlite3": "^9.2.2",
+    "commander": "^11.1.0",
+    "fast-glob": "^3.3.2",
+    "simple-git": "^3.20.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/node": "^20.10.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
