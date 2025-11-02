@@ -4,7 +4,7 @@ Your package has been successfully renamed and is ready to publish to npm.
 
 ## ✅ What's Been Done
 
-1. **Package renamed** from `bloat` to `codecomb`
+1. **Package renamed** from `repogrep` to `codecomb`
 2. **Name availability verified** - `codecomb` is available on npm
 3. **All references updated**:
    - package.json (name, bin, repository URLs)

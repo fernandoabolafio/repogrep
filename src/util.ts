@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-export const DATA_DIR = path.join(os.homedir(), '.bloat');
+export const DATA_DIR = path.join(os.homedir(), '.repogrep');
 export const RSEARCH_DIR = path.join(DATA_DIR, '.rsearch');
 export const SQLITE_DB_PATH = path.join(RSEARCH_DIR, 'search.sqlite');
 export const VECTORS_DIR = path.join(RSEARCH_DIR, 'vectors');
@@ -138,4 +138,45 @@ export function safeRepoNameFromPath(repoPath: string): string {
 
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function parseRepoPath(input: string): { repo: string; path: string } {
+  const firstSlash = input.indexOf('/');
+  if (firstSlash === -1) {
+    return { repo: input, path: '' };
+  }
+  return {
+    repo: input.slice(0, firstSlash),
+    path: input.slice(firstSlash + 1)
+  };
+}
+
+export function globToSqlPattern(glob: string): string {
+  // Convert glob patterns to SQL LIKE patterns
+  // ** -> %, * -> %, ? -> _
+  let pattern = glob;
+  
+  // Handle leading **/ (match any directory depth)
+  pattern = pattern.replace(/^\*\*\//, '%/');
+  
+  // Handle /**/ (match any directory in the middle)
+  pattern = pattern.replace(/\/\*\*\//g, '/%/');
+  
+  // Handle trailing /**
+  pattern = pattern.replace(/\/\*\*$/, '/%');
+  
+  // Handle remaining ** (any characters including /)
+  pattern = pattern.replace(/\*\*/g, '%');
+  
+  // Handle single * (any characters except /)
+  pattern = pattern.replace(/\*/g, '%');
+  
+  // Handle ? (single character)
+  pattern = pattern.replace(/\?/g, '_');
+  
+  return pattern;
+}
+
+export function formatLineNumber(line: number, width: number = 6): string {
+  return line.toString().padStart(width, ' ');
 }

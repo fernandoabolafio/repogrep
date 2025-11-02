@@ -9,7 +9,7 @@ tsconfig.json
 *.md.backup
 
 # Test data
-.bloat/
+.repogrep/
 .rsearch/
 repos/
 

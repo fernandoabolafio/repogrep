@@ -20,13 +20,13 @@ If the name is taken, update the name field:
 
 ```json
 {
-  "name": "@fernandoabolafio/bloat",  // scoped package
+  "name": "@fernandoabolafio/repogrep",  // scoped package
   // or
-  "name": "bloat-cli"  // alternative name
+  "name": "repogrep-cli"  // alternative name
 }
 ```
 
-For scoped packages, users would install with: `npm install -g @fernandoabolafio/bloat`
+For scoped packages, users would install with: `npm install -g @fernandoabolafio/repogrep`
 
 ### 3. Verify the build works
 
@@ -39,14 +39,14 @@ npm run build
 npm pack
 
 # This creates a .tgz file - you can test install it:
-npm install -g bloat-0.1.0.tgz
+npm install -g repogrep-0.1.0.tgz
 
 # Test the command works
-bloat --help
-bloat list
+repogrep --help
+repogrep list
 
 # Uninstall after testing
-npm uninstall -g bloat
+npm uninstall -g repogrep
 ```
 
 ### 4. Review what will be published
@@ -107,26 +107,26 @@ git push && git push --tags
 
 ```bash
 # Install globally from npm
-npm install -g bloat
+npm install -g repogrep
 
 # Or for scoped package:
-npm install -g @fernandoabolafio/bloat
+npm install -g @fernandoabolafio/repogrep
 
 # Test it works
-bloat --help
-bloat add https://github.com/sindresorhus/slugify
-bloat search "slugify"
+repogrep --help
+repogrep add https://github.com/sindresorhus/slugify
+repogrep search "slugify"
 ```
 
 ### View on npm
 
 Your package will be available at:
-- https://www.npmjs.com/package/bloat
-- Or https://www.npmjs.com/package/@fernandoabolafio/bloat (for scoped)
+- https://www.npmjs.com/package/repogrep
+- Or https://www.npmjs.com/package/@fernandoabolafio/repogrep (for scoped)
 
 ### Update GitHub repository
 
-Make sure your GitHub repo at `github.com/fernandoabolafio/bloat` is public and matches the repository URL in package.json.
+Make sure your GitHub repo at `github.com/fernandoabolafio/repogrep` is public and matches the repository URL in package.json.
 
 ## Troubleshooting
 
@@ -169,13 +169,13 @@ Recommended versioning:
 You can unpublish within 72 hours of publishing:
 
 ```bash
-npm unpublish bloat@0.1.0
+npm unpublish repogrep@0.1.0
 ```
 
 After 72 hours, you can only deprecate:
 
 ```bash
-npm deprecate bloat@0.1.0 "Please upgrade to 0.2.0"
+npm deprecate repogrep@0.1.0 "Please upgrade to 0.2.0"
 ```
 
 ## Quick Reference

@@ -4,7 +4,7 @@ RepoGrep is a fully local CLI for indexing source repositories and searching the
 
 ## Features
 
-- Clone or re-index git repositories into `~/.bloat/repos`
+- Clone or re-index git repositories into `~/.repogrep/repos`
 - SQLite FTS5 keyword search with contextual snippets
 - LanceDB vector search backed by MiniLM-L6-v2 embeddings (powered by `@xenova/transformers`)
 - Hybrid scoring that blends keyword and semantic results
@@ -37,7 +37,7 @@ The global install exposes the `repogrep` command.
 repogrep add https://github.com/sindresorhus/slugify
 
 # Re-index an existing local clone
-repogrep index ~/.bloat/repos/slugify -r slugify
+repogrep index ~/.repogrep/repos/slugify -r slugify
 
 # Keyword search (default)
 repogrep search "auth token rotation"
@@ -57,7 +57,7 @@ repogrep search --hybrid -r my-repo-name --limit 10 "hybrid query"
 repogrep list
 ```
 
-Index data is stored under `~/.bloat/.rsearch` and can be safely removed if you want to rebuild from scratch.
+Index data is stored under `~/.repogrep/.rsearch` and can be safely removed if you want to rebuild from scratch.
 
 ## Development
 

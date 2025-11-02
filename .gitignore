@@ -8,6 +8,6 @@ yarn-error.log*
 .pnpm-store/
 
 # local data directories
-.bloat/
+.repogrep/
 .rsearch/
 repos/
