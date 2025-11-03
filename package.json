@@ -1,6 +1,6 @@
 {
   "name": "repogrep",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Local CLI tool for indexing and searching code repositories with full-text and semantic search.",
   "type": "module",
   "main": "dist/cli.js",
