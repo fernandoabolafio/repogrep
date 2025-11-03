@@ -22,7 +22,10 @@ export const DEFAULT_GLOB_PATTERNS = [
   '**/*.cpp',
   '**/*.h',
   '**/*.hpp',
-  '**/*.md'
+  '**/*.md',
+  '**/*.json',
+  '**/*.yaml',
+  '**/*.yml'
 ];
 
 export const DEFAULT_IGNORE_PATTERNS = [
