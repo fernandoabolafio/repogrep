@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
 import { addRepository, indexRepository } from './indexer.js';
 import { search, type SearchMode } from './search.js';
@@ -15,6 +16,13 @@ import {
   formatLineNumber,
   REPOS_DIR
 } from './util.js';
+
+// Read version from package.json
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const packageJsonPath = path.join(__dirname, '..', 'package.json');
+const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+const version = packageJson.version;
 
 const program = new Command();
 
@@ -54,7 +62,7 @@ function wrapAction(fn: (...args: any[]) => Promise<void>) {
 program
   .name('repogrep')
   .description('Local code search combining SQLite FTS and LanceDB semantic search')
-  .version('0.1.0');
+  .version(version);
 
 program
   .command('add')
