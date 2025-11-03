@@ -93,7 +93,7 @@ export async function indexRepository(repoPath: string, options: IndexOptions = 
   const entries = await fg(patterns, {
     cwd: repoPath,
     ignore,
-    dot: false,
+    dot: true,
     onlyFiles: true,
     unique: true
   });
