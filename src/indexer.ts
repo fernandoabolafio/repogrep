@@ -5,7 +5,7 @@ import cliProgress from 'cli-progress';
 import fg from 'fast-glob';
 import { simpleGit } from 'simple-git';
 
-import { getLanceTable, getSqliteDb, upsertRepoIndex, type FileMetaRow } from './db.js';
+import { getLanceTable, getSqliteDb, upsertRepoIndex, deleteFromLanceTable, addToLanceTable, type FileMetaRow } from './db.js';
 import { embedText } from './embed.js';
 import {
   DEFAULT_GLOB_PATTERNS,
@@ -99,7 +99,6 @@ export async function indexRepository(repoPath: string, options: IndexOptions = 
   });
 
   const db = await getSqliteDb();
-  const table = await getLanceTable();
 
   const existingRecords = db
     .prepare('SELECT id, path, hash FROM file_meta WHERE repo = ?')
@@ -257,21 +256,23 @@ export async function indexRepository(repoPath: string, options: IndexOptions = 
 
   transaction(pendingUpdates, removedRecords);
 
+  // Delete removed records from LanceDB
   for (const removal of removedRecords) {
     const filter = `id = '${escapeFilterValue(toVectorId(repoName, removal.path))}'`;
-    await table.delete(filter);
+    await deleteFromLanceTable(filter);
   }
 
+  // Delete and re-add updated records
   if (pendingUpdates.length > 0) {
     const filters = new Set<string>();
     for (const record of pendingUpdates) {
       filters.add(`id = '${escapeFilterValue(toVectorId(repoName, record.meta.path))}'`);
     }
     for (const filter of filters) {
-      await table.delete(filter);
+      await deleteFromLanceTable(filter);
     }
 
-    await table.add(
+    await addToLanceTable(
       pendingUpdates.map((record) => ({
         id: toVectorId(repoName, record.meta.path),
         repo: repoName,

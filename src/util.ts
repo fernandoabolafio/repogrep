@@ -11,21 +11,37 @@ export const REPOS_DIR = path.join(DATA_DIR, 'repos');
 
 export const DEFAULT_GLOB_PATTERNS = [
   '**/*.ts',
+  '*.ts',
   '**/*.tsx',
+  '*.tsx',
   '**/*.js',
+  '*.js',
   '**/*.jsx',
+  '*.jsx',
   '**/*.py',
+  '*.py',
   '**/*.java',
+  '*.java',
   '**/*.go',
+  '*.go',
   '**/*.rs',
+  '*.rs',
   '**/*.c',
+  '*.c',
   '**/*.cpp',
+  '*.cpp',
   '**/*.h',
+  '*.h',
   '**/*.hpp',
+  '*.hpp',
   '**/*.md',
+  '*.md',
   '**/*.json',
+  '*.json',
   '**/*.yaml',
-  '**/*.yml'
+  '*.yaml',
+  '**/*.yml',
+  '*.yml'
 ];
 
 export const DEFAULT_IGNORE_PATTERNS = [

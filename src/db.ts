@@ -148,6 +148,70 @@ export async function getLanceTable(): Promise<Table> {
   return lanceTablePromise;
 }
 
+/**
+ * Refresh the LanceDB table to get the latest version.
+ * This helps avoid commit conflicts when multiple operations happen.
+ */
+export async function refreshLanceTable(): Promise<Table> {
+  const connection = await getLanceConnection();
+  const existingTables = await connection.tableNames();
+  
+  if (existingTables.includes(LANCE_TABLE_NAME)) {
+    const table = await connection.openTable(LANCE_TABLE_NAME);
+    lanceTablePromise = Promise.resolve(table);
+    return table;
+  }
+  
+  return getLanceTable();
+}
+
+/**
+ * Retry a LanceDB operation with exponential backoff on commit conflicts.
+ */
+async function retryLanceOperation<T>(
+  operation: (table: Table) => Promise<T>,
+  maxRetries: number = 3
+): Promise<T> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const table = await refreshLanceTable();
+      return await operation(table);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('Commit conflict') && attempt < maxRetries - 1) {
+        // Exponential backoff: 10ms, 20ms, 40ms
+        const delay = Math.pow(2, attempt) * 10;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        lastError = error instanceof Error ? error : new Error(String(error));
+        continue;
+      }
+      throw error;
+    }
+  }
+  
+  throw lastError || new Error('Operation failed after retries');
+}
+
+/**
+ * Delete rows from LanceDB table with retry logic for commit conflicts.
+ */
+export async function deleteFromLanceTable(filter: string): Promise<void> {
+  await retryLanceOperation(async (table) => {
+    await table.delete(filter);
+  });
+}
+
+/**
+ * Add rows to LanceDB table with retry logic for commit conflicts.
+ */
+export async function addToLanceTable(rows: Record<string, unknown>[]): Promise<void> {
+  await retryLanceOperation(async (table) => {
+    await table.add(rows);
+  });
+}
+
 export async function resetRepoData(repo: string): Promise<void> {
   const db = await getSqliteDb();
   const deleteMeta = db.prepare('DELETE FROM file_meta WHERE repo = ?');
@@ -163,8 +227,8 @@ export async function resetRepoData(repo: string): Promise<void> {
   transaction(repo);
 
   if (lanceTablePromise) {
-    const table = await lanceTablePromise;
-    await table.delete(`repo = '${repo.replace(/'/g, "''")}'`);
+    const escapedRepo = repo.replace(/'/g, "''");
+    await deleteFromLanceTable(`repo = '${escapedRepo}'`);
   }
 }
 
