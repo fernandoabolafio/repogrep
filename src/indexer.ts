@@ -11,7 +11,6 @@ import {
   DEFAULT_GLOB_PATTERNS,
   DEFAULT_IGNORE_PATTERNS,
   MAX_INDEXED_BYTES,
-  REPOS_DIR,
   ensureDataLayout,
   fileExists,
   getFilename,
@@ -98,6 +97,15 @@ export async function indexRepository(repoPath: string, options: IndexOptions = 
     unique: true
   });
 
+  const targetRepoDir = resolveRepoPath(repoName);
+  const resolvedRepoPath = path.resolve(repoPath);
+  const resolvedTargetDir = path.resolve(targetRepoDir);
+  const shouldCopyFiles = resolvedRepoPath !== resolvedTargetDir;
+  
+  if (shouldCopyFiles) {
+    await fs.mkdir(targetRepoDir, { recursive: true });
+  }
+
   const db = await getSqliteDb();
 
   const existingRecords = db
@@ -139,6 +147,13 @@ export async function indexRepository(repoPath: string, options: IndexOptions = 
   for (const relativePath of entries) {
     const absolutePath = path.join(repoPath, relativePath);
     const buffer = await fs.readFile(absolutePath);
+
+    if (shouldCopyFiles) {
+      const targetFilePath = path.join(targetRepoDir, relativePath);
+      const targetFileDir = path.dirname(targetFilePath);
+      await fs.mkdir(targetFileDir, { recursive: true });
+      await fs.copyFile(absolutePath, targetFilePath);
+    }
 
     if (isBinaryBuffer(buffer)) {
       binarySkipped += 1;
@@ -213,6 +228,12 @@ export async function indexRepository(repoPath: string, options: IndexOptions = 
   for (const record of existingRecords) {
     if (!seenPaths.has(record.path)) {
       removedRecords.push({ id: record.id, path: record.path });
+      if (shouldCopyFiles) {
+        const targetFilePath = path.join(targetRepoDir, record.path);
+        if (await fileExists(targetFilePath)) {
+          await fs.unlink(targetFilePath);
+        }
+      }
     }
   }
 
