@@ -8,7 +8,6 @@ import { simpleGit } from 'simple-git';
 import { getLanceTable, getSqliteDb, upsertRepoIndex, deleteFromLanceTable, addToLanceTable, type FileMetaRow } from './db.js';
 import { embedText } from './embed.js';
 import {
-  DEFAULT_GLOB_PATTERNS,
   DEFAULT_IGNORE_PATTERNS,
   MAX_INDEXED_BYTES,
   ensureDataLayout,
@@ -16,6 +15,7 @@ import {
   getFilename,
   hashBuffer,
   isBinaryBuffer,
+  loadGitignorePatterns,
   normalizeRepoName,
   resolveRepoPath,
   safeRepoNameFromPath
@@ -85,8 +85,10 @@ export async function indexRepository(repoPath: string, options: IndexOptions = 
   await ensureDataLayout();
 
   const repoName = options.repo ?? safeRepoNameFromPath(repoPath);
-  const patterns = options.patterns ?? DEFAULT_GLOB_PATTERNS;
-  const ignore = options.ignore ?? DEFAULT_IGNORE_PATTERNS;
+  const patterns = options.patterns ?? ['**/*'];
+  const defaultIgnore = options.ignore ?? DEFAULT_IGNORE_PATTERNS;
+  const gitignorePatterns = await loadGitignorePatterns(repoPath);
+  const ignore = [...defaultIgnore, ...gitignorePatterns];
   const force = options.force ?? false;
 
   const entries = await fg(patterns, {

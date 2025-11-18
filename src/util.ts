@@ -9,52 +9,129 @@ export const SQLITE_DB_PATH = path.join(RSEARCH_DIR, 'search.sqlite');
 export const VECTORS_DIR = path.join(RSEARCH_DIR, 'vectors');
 export const REPOS_DIR = path.join(DATA_DIR, 'repos');
 
-export const DEFAULT_GLOB_PATTERNS = [
-  '**/*.ts',
-  '*.ts',
-  '**/*.tsx',
-  '*.tsx',
-  '**/*.js',
-  '*.js',
-  '**/*.jsx',
-  '*.jsx',
-  '**/*.py',
-  '*.py',
-  '**/*.java',
-  '*.java',
-  '**/*.go',
-  '*.go',
-  '**/*.rs',
-  '*.rs',
-  '**/*.c',
-  '*.c',
-  '**/*.cpp',
-  '*.cpp',
-  '**/*.h',
-  '*.h',
-  '**/*.hpp',
-  '*.hpp',
-  '**/*.md',
-  '*.md',
-  '**/*.json',
-  '*.json',
-  '**/*.yaml',
-  '*.yaml',
-  '**/*.yml',
-  '*.yml'
-];
-
 export const DEFAULT_IGNORE_PATTERNS = [
   '**/node_modules/**',
   '**/.git/**',
   '**/dist/**',
   '**/build/**',
+  '**/out/**',
+  '**/target/**',
   '**/.next/**',
   '**/.turbo/**',
+  '**/.cache/**',
+  '**/.parcel-cache/**',
   '**/coverage/**',
   '**/vendor/**',
   '**/.venv/**',
-  '**/__pycache__/**'
+  '**/__pycache__/**',
+  '**/.eggs/**',
+  '**/.tox/**',
+  '**/tmp/**',
+  '**/temp/**',
+  '**/.vscode/**',
+  '**/.idea/**',
+  '**/.vs/**',
+  '**/.DS_Store',
+  '**/*.jpg',
+  '**/*.jpeg',
+  '**/*.png',
+  '**/*.gif',
+  '**/*.bmp',
+  '**/*.svg',
+  '**/*.webp',
+  '**/*.ico',
+  '**/*.tiff',
+  '**/*.tif',
+  '**/*.psd',
+  '**/*.ai',
+  '**/*.eps',
+  '**/*.indd',
+  '**/*.raw',
+  '**/*.cr2',
+  '**/*.nef',
+  '**/*.orf',
+  '**/*.sr2',
+  '**/*.mp4',
+  '**/*.avi',
+  '**/*.mov',
+  '**/*.mkv',
+  '**/*.webm',
+  '**/*.flv',
+  '**/*.wmv',
+  '**/*.m4v',
+  '**/*.ogv',
+  '**/*.3gp',
+  '**/*.mp3',
+  '**/*.wav',
+  '**/*.flac',
+  '**/*.aac',
+  '**/*.ogg',
+  '**/*.wma',
+  '**/*.m4a',
+  '**/*.opus',
+  '**/*.zip',
+  '**/*.tar',
+  '**/*.gz',
+  '**/*.bz2',
+  '**/*.xz',
+  '**/*.7z',
+  '**/*.rar',
+  '**/*.jar',
+  '**/*.war',
+  '**/*.ear',
+  '**/*.iso',
+  '**/*.deb',
+  '**/*.rpm',
+  '**/*.apk',
+  '**/*.dmg',
+  '**/*.pkg',
+  '**/*.msi',
+  '**/*.exe',
+  '**/*.dll',
+  '**/*.so',
+  '**/*.dylib',
+  '**/*.bin',
+  '**/*.app',
+  '**/*.a',
+  '**/*.lib',
+  '**/*.wasm',
+  '**/*.db',
+  '**/*.sqlite',
+  '**/*.sqlite3',
+  '**/*.mdb',
+  '**/*.accdb',
+  '**/*.ttf',
+  '**/*.otf',
+  '**/*.woff',
+  '**/*.woff2',
+  '**/*.eot',
+  '**/*.o',
+  '**/*.obj',
+  '**/*.class',
+  '**/*.pyc',
+  '**/*.pyo',
+  '**/*.log',
+  '**/*.parquet',
+  '**/*.avro',
+  '**/*.orc',
+  '**/*.h5',
+  '**/*.hdf5',
+  '**/*.pkl',
+  '**/*.pickle',
+  '**/*.npy',
+  '**/*.npz',
+  '**/*.ckpt',
+  '**/*.pth',
+  '**/*.pt',
+  '**/*.safetensors',
+  '**/*.onnx',
+  '**/*.pdf',
+  '**/*.docx',
+  '**/*.xlsx',
+  '**/*.pptx',
+  '**/*.doc',
+  '**/*.xls',
+  '**/*.ppt'
 ];
 
 export const MAX_INDEXED_BYTES = 64 * 1024; // 64KB per file
@@ -198,4 +275,58 @@ export function globToSqlPattern(glob: string): string {
 
 export function formatLineNumber(line: number, width: number = 6): string {
   return line.toString().padStart(width, ' ');
+}
+
+export async function loadGitignorePatterns(repoPath: string): Promise<string[]> {
+  const gitignorePath = path.join(repoPath, '.gitignore');
+  
+  if (!(await fileExists(gitignorePath))) {
+    return [];
+  }
+  
+  try {
+    const content = await fs.readFile(gitignorePath, 'utf-8');
+    const lines = content.split('\n');
+    const patterns: string[] = [];
+    
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) {
+        continue;
+      }
+      
+      let pattern = trimmed.replace(/\\/g, '/');
+      
+      const isNegation = pattern.startsWith('!');
+      if (isNegation) {
+        pattern = pattern.slice(1);
+      }
+      
+      const isRootRelative = pattern.startsWith('/');
+      if (isRootRelative) {
+        pattern = pattern.slice(1);
+      }
+      
+      const isDirectory = pattern.endsWith('/');
+      if (isDirectory) {
+        pattern = pattern.slice(0, -1);
+        pattern = `${pattern}/**`;
+      }
+      
+      if (!isRootRelative) {
+        pattern = `**/${pattern}`;
+      }
+      
+      if (pattern) {
+        if (isNegation) {
+          pattern = `!${pattern}`;
+        }
+        patterns.push(pattern);
+      }
+    }
+    
+    return patterns;
+  } catch {
+    return [];
+  }
 }
